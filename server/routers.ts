@@ -3,7 +3,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
-import { getAddressFlow } from "./blockstream";
+import { getAddressFlow, getLatestTransactionFlow } from "./blockstream";
 
 const isLikelyBitcoinAddress = (value: string) =>
   /^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$/.test(value) || /^bc1[ac-hj-np-z02-9]{11,71}$/i.test(value);
@@ -25,6 +25,7 @@ export const appRouter = router({
   }),
   bitcoin: router({
     addressFlow: publicProcedure.input(bitcoinAddressInput).query(({ input }) => getAddressFlow(input.address, input.limit)),
+    latestFlow: publicProcedure.input(z.object({ limit: z.number().int().min(3).max(8).default(5) })).query(({ input }) => getLatestTransactionFlow(input.limit)),
   }),
 });
 

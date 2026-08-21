@@ -10,3 +10,8 @@
 - [x] Add complete open-source repository documentation including README, LICENSE, CONTRIBUTING, and verified ignore rules.
 - [x] Add Vitest coverage for Blockstream response transformation and run type checks, tests, and visual verification.
 - [x] Add a transparent Blockchain.info fallback for permitted-public-source resilience when Blockstream.info times out or is unavailable.
+- [x] Replace manual-address-first landing state with automatic loading of the latest public Bitcoin transactions.
+- [x] Add address-node navigation to the corresponding public blockchain explorer detail page.
+- [x] Refine the latest-flow dashboard for clearer transaction provenance, active refresh feedback, and high-density graph readability.
+- [x] Update README and test coverage for the latest-transactions mode, then complete visual and build verification.
+- [x] Prevent synthetic or aggregate endpoint labels from being rendered as blockchain address links.

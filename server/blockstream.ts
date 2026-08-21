@@ -101,6 +101,10 @@ export type AddressFlowResponse = {
   fetchedAt: string;
 };
 
+export type LatestTransactionFlowResponse = Omit<AddressFlowResponse, "address"> & {
+  address: "latest-mempool";
+};
+
 function shortId(value: string, start = 9, end = 6) {
   return value.length <= start + end + 1 ? value : `${value.slice(0, start)}…${value.slice(-end)}`;
 }
@@ -378,6 +382,25 @@ export async function getAddressFlow(address: string, limit: number) {
       throw new Error(`无法读取该地址的链上数据。${blockstreamMessage} ${blockchainInfoMessage}`);
     }
   }
+}
+
+export async function getLatestTransactionFlow(limit: number): Promise<AddressFlowResponse> {
+  const response = await fetchPublicJson<{ txs: BlockchainInfoTransaction[] }>(
+    BLOCKCHAIN_INFO_API_BASE,
+    "/unconfirmed-transactions?format=json",
+    "Blockchain.info",
+  );
+  const transactions = response.txs.map(toBlockstreamTransaction);
+  const summary: BlockstreamAddressSummary = {
+    address: "latest-mempool",
+    chain_stats: { tx_count: 0, funded_txo_sum: 0, spent_txo_sum: 0 },
+    mempool_stats: {
+      tx_count: transactions.length,
+      funded_txo_sum: transactions.reduce((total, transaction) => total + transaction.vout.reduce((sum, output) => sum + output.value, 0), 0),
+      spent_txo_sum: 0,
+    },
+  };
+  return buildAddressFlow("latest-mempool", summary, transactions, limit, "Blockchain.info");
 }
 
 export function satoshisToBtc(satoshis: number) {

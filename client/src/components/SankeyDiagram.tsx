@@ -7,6 +7,7 @@ type DiagramProps = {
   links: FlowLink[];
   selectedTransactionId?: string;
   onTransactionSelect: (txid: string) => void;
+  onAddressSelect?: (address: string) => void;
 };
 
 type NodePosition = FlowNode & {
@@ -44,7 +45,11 @@ function midpoint(position: NodePosition) {
   return position.y + position.height / 2;
 }
 
-export default function SankeyDiagram({ nodes, links, selectedTransactionId, onTransactionSelect }: DiagramProps) {
+function isAddress(value: string) {
+  return /^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[ac-hj-np-z02-9]{11,71})$/i.test(value);
+}
+
+export default function SankeyDiagram({ nodes, links, selectedTransactionId, onTransactionSelect, onAddressSelect }: DiagramProps) {
   const [hoveredLink, setHoveredLink] = useState<string>();
   const layout = useMemo(() => {
     const byRole = {
@@ -140,23 +145,27 @@ export default function SankeyDiagram({ nodes, links, selectedTransactionId, onT
 
         {positionedNodes.map(node => {
           const transactionId = resolveTransactionId(node);
+          const address = node.role !== "transaction" && isAddress(node.label) ? node.label : undefined;
           const isSelected = transactionId === selectedTransactionId;
           return (
             <g
               key={node.id}
               className={`sankey-node ${roleClass[node.role]} ${node.isTracked ? "is-tracked" : ""} ${isSelected ? "is-selected" : ""}`}
-              onClick={() => transactionId && onTransactionSelect(transactionId)}
+              onClick={() => transactionId ? onTransactionSelect(transactionId) : address && onAddressSelect?.(address)}
               onKeyDown={event => {
-                if (transactionId && (event.key === "Enter" || event.key === " ")) onTransactionSelect(transactionId);
+                if (event.key === "Enter" || event.key === " ") {
+                  if (transactionId) onTransactionSelect(transactionId);
+                  else if (address) onAddressSelect?.(address);
+                }
               }}
-              role={transactionId ? "button" : undefined}
-              tabIndex={transactionId ? 0 : undefined}
+              role={transactionId || address ? "button" : undefined}
+              tabIndex={transactionId || address ? 0 : undefined}
             >
               <rect x={node.x} y={node.y} width={node.width} height={node.height} rx="12" />
               <circle cx={node.x + 15} cy={midpoint(node)} r="4" />
               <text x={node.x + 27} y={midpoint(node) - 2} className="node-label">{node.role === "transaction" ? compact(node.label, 6, 5) : compact(node.label)}</text>
               <text x={node.x + 27} y={midpoint(node) + 12} className="node-value">{formatBtc(node.value)}</text>
-              <title>{`${node.role === "input" ? "输入" : node.role === "output" ? "输出" : "交易"}：${node.label}\n${formatBtc(node.value)}`}</title>
+              <title>{`${node.role === "input" ? "输入" : node.role === "output" ? "输出" : "交易"}：${node.label}\n${formatBtc(node.value)}${address ? "\n点击查看地址详情" : ""}`}</title>
             </g>
           );
         })}

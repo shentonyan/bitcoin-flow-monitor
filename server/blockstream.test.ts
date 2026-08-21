@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { buildAddressFlow, type BlockstreamAddressSummary, type BlockstreamTransaction } from "./blockstream";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { buildAddressFlow, getLatestTransactionFlow, type BlockstreamAddressSummary, type BlockstreamTransaction } from "./blockstream";
 
 const trackedAddress = "bc1qtrackedaddress0000000000000000000000";
 
@@ -52,5 +52,27 @@ describe("buildAddressFlow", () => {
 
     expect(result.transactions).toHaveLength(1);
     expect(result.summary.confirmedTxCount).toBe(3);
+  });
+});
+
+describe("getLatestTransactionFlow", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("maps public unconfirmed transactions into a no-address latest flow", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      txs: [{
+        hash: "b".repeat(64), fee: 120, time: 1_700_000_000,
+        inputs: [{ prev_out: { addr: "bc1qsource0000000000000000000000000000000", value: 10_000 } }],
+        out: [{ addr: "bc1qtarget0000000000000000000000000000000", value: 9_880 }],
+      }],
+    }), { status: 200 })));
+
+    const result = await getLatestTransactionFlow(5);
+
+    expect(result.address).toBe("latest-mempool");
+    expect(result.provider).toBe("Blockchain.info");
+    expect(result.summary.mempoolTxCount).toBe(1);
+    expect(result.transactions[0]?.fee).toBe(120);
+    expect(result.sankey.links).toHaveLength(2);
   });
 });

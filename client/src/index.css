@@ -147,6 +147,7 @@ button, input, select { font: inherit; }
 .sankey-wrap:has(.sankey-link:hover) .sankey-link:not(.is-hovered) { opacity: 0.26; }
 .sankey-link.is-hovered { opacity: 1; }
 .sankey-node { cursor: default; outline: none; }
+.sankey-input, .sankey-output { cursor: pointer; }
 .sankey-node.transaction { cursor: pointer; }
 .sankey-node rect { stroke-width: 1.4; transition: filter 160ms ease, stroke-width 160ms ease; }
 .sankey-node circle { transition: r 160ms ease; }
