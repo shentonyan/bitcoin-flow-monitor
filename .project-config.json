@@ -1,0 +1,42 @@
+{
+  "build_command": "pnpm run build",
+  "capabilities": [
+    "server",
+    "db",
+    "user"
+  ],
+  "dev_command": "pnpm run dev",
+  "env_vars": {
+    "DATABASE_URL": "mysql://2z2TCsDiJNgwAEB.root:Y398kM91RG5IdpwYIgoy@gateway02.us-east-1.prod.aws.tidbcloud.com:4000/eot4FXAc9MneRYbgtuByyx?ssl={\"rejectUnauthorized\":true}"
+  },
+  "experiments": [
+    "no_db_push"
+  ],
+  "git_remote": {
+    "repo_url": "https://7f0548f6b28a1758d9bf7be630d36cb4.artifacts.cloudflare.net/git/prod/eot4FXAc9MneRYbgtuByyx.git",
+    "expiration": "2026-08-22T14:28:39.901Z",
+    "token": "art_v2_x_b9632e5d544edee2d4913645702f043326fa68cc?expires=1787408919",
+    "backend": "GIT_BACKEND_ARTIFACTS"
+  },
+  "name": "bitcoin-flow-monitor",
+  "path": "/home/ubuntu/bitcoin-flow-monitor",
+  "port": 3000,
+  "secrets": {
+    "BUILT_IN_FORGE_API_KEY": "977BHntxP2UPYX6JWqDCzt",
+    "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
+    "JWT_SECRET": "bEPDnKNGJussjSZGNBLYL2",
+    "OAUTH_SERVER_URL": "https://api.manus.im",
+    "OWNER_NAME": "Shenton YAN",
+    "OWNER_OPEN_ID": "eLvAXKvCEM79oTEh5vV7Jc",
+    "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
+    "VITE_ANALYTICS_WEBSITE_ID": "84220299-f976-476c-9b41-abaf3816e849",
+    "VITE_APP_ID": "eot4FXAc9MneRYbgtuByyx",
+    "VITE_APP_LOGO": "",
+    "VITE_APP_TITLE": "Bitcoin Flow Monitor",
+    "VITE_FRONTEND_FORGE_API_KEY": "C2AfGyKwxcfEAUaMRabJRB",
+    "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",
+    "VITE_OAUTH_PORTAL_URL": "https://manus.im"
+  },
+  "template_id": "web-db-user",
+  "test_command": "pnpm test"
+}
