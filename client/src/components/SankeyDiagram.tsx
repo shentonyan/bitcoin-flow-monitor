@@ -105,7 +105,7 @@ export default function SankeyDiagram({ nodes, links, selectedTransactionId, onT
         <span>{columns.transaction.title}</span>
         <span>{columns.output.title}</span>
       </div>
-      <svg viewBox={`0 0 900 ${layout.height}`} className="sankey-svg" role="img" aria-label="输入地址到交易再到输出地址的比特币资金流">
+      <svg viewBox={`0 0 900 ${layout.height}`} className="sankey-svg" role="group" aria-label="输入地址到交易再到输出地址的比特币资金流">
         <defs>
           <linearGradient id="flow-inbound" x1="0" x2="1">
             <stop offset="0%" stopColor="var(--flow-blue)" stopOpacity="0.46" />
@@ -147,19 +147,23 @@ export default function SankeyDiagram({ nodes, links, selectedTransactionId, onT
           const transactionId = resolveTransactionId(node);
           const address = node.role !== "transaction" && isAddress(node.label) ? node.label : undefined;
           const isSelected = transactionId === selectedTransactionId;
+          const isInteractive = Boolean(transactionId || address);
           return (
             <g
               key={node.id}
               className={`sankey-node ${roleClass[node.role]} ${node.isTracked ? "is-tracked" : ""} ${isSelected ? "is-selected" : ""}`}
               onClick={() => transactionId ? onTransactionSelect(transactionId) : address && onAddressSelect?.(address)}
               onKeyDown={event => {
-                if (event.key === "Enter" || event.key === " ") {
+                if (isInteractive && (event.key === "Enter" || event.key === " ")) {
+                  event.preventDefault();
                   if (transactionId) onTransactionSelect(transactionId);
                   else if (address) onAddressSelect?.(address);
                 }
               }}
-              role={transactionId || address ? "button" : undefined}
-              tabIndex={transactionId || address ? 0 : undefined}
+              role={isInteractive ? "button" : undefined}
+              tabIndex={isInteractive ? 0 : undefined}
+              aria-label={transactionId ? `查看交易 ${node.label}` : address ? `打开地址 ${address}` : undefined}
+              aria-pressed={transactionId ? isSelected : undefined}
             >
               <rect x={node.x} y={node.y} width={node.width} height={node.height} rx="12" />
               <circle cx={node.x + 15} cy={midpoint(node)} r="4" />

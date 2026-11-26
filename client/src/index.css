@@ -142,7 +142,7 @@ button, input, select { font: inherit; }
 .diagram-column-labels span:nth-child(2) { text-align: center; }
 .diagram-column-labels span:last-child { text-align: right; }
 .sankey-wrap { overflow: auto; padding: 0.15rem 0.55rem 0.72rem; }
-.sankey-svg { display: block; width: 100%; min-width: 620px; overflow: visible; }
+.sankey-svg { display: block; width: 100%; overflow: visible; }
 .sankey-link { transition: opacity 160ms ease, stroke-width 160ms ease; cursor: help; }
 .sankey-wrap:has(.sankey-link:hover) .sankey-link:not(.is-hovered) { opacity: 0.26; }
 .sankey-link.is-hovered { opacity: 1; }
@@ -188,4 +188,6 @@ button, input, select { font: inherit; }
 .skeleton { border-radius: 14px; background: linear-gradient(100deg, color-mix(in srgb, var(--flow-border) 72%, transparent) 20%, color-mix(in srgb, var(--flow-surface-strong) 90%, transparent) 50%, color-mix(in srgb, var(--flow-border) 72%, transparent) 80%); background-size: 200% 100%; animation: shimmer 1.35s infinite; }
 @keyframes shimmer { to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; } }
-@media (max-width: 640px) { .glass-card { border-radius: 20px; } .metric-card { min-height: 112px; } .sankey-svg { min-width: 680px; } }
+.sankey-node[role="button"]:focus-visible { outline: none; }
+.sankey-node[role="button"]:focus-visible rect { stroke: var(--flow-blue); stroke-width: 3; }
+@media (max-width: 640px) { .glass-card { border-radius: 20px; } .metric-card { min-height: 112px; } }
