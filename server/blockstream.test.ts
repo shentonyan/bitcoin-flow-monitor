@@ -67,12 +67,30 @@ describe("getLatestTransactionFlow", () => {
       }],
     }), { status: 200 })));
 
-    const result = await getLatestTransactionFlow(5);
+    const [result, cachedResult] = await Promise.all([getLatestTransactionFlow(5), getLatestTransactionFlow(5)]);
 
+    expect(cachedResult).toBe(result);
+    expect(fetch).toHaveBeenCalledTimes(1);
     expect(result.address).toBe("latest-mempool");
     expect(result.provider).toBe("Blockchain.info");
     expect(result.summary.mempoolTxCount).toBe(1);
     expect(result.transactions[0]?.fee).toBe(120);
     expect(result.sankey.links).toHaveLength(2);
+  });
+
+  it("limits conversion work while retaining the full mempool count", async () => {
+    const txs = Array.from({ length: 7 }, (_, index) => ({
+      hash: index.toString(16).padStart(64, "0"), fee: 100 + index, time: 1_700_000_000 + index,
+      inputs: [{ prev_out: { addr: "bc1qsource0000000000000000000000000000000", value: 10_000 } }],
+      out: [{ addr: "bc1qtarget0000000000000000000000000000000", value: 9_900 - index }],
+    }));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ txs }), { status: 200 })));
+
+    const result = await getLatestTransactionFlow(3);
+
+    expect(result.summary.mempoolTxCount).toBe(7);
+    expect(result.transactions).toHaveLength(3);
+    expect(result.transactions[0]?.fee).toBe(100);
+    expect(result.transactions[2]?.fee).toBe(102);
   });
 });

@@ -384,23 +384,39 @@ export async function getAddressFlow(address: string, limit: number) {
   }
 }
 
-export async function getLatestTransactionFlow(limit: number): Promise<AddressFlowResponse> {
+const LATEST_FLOW_CACHE_MS = 10_000;
+const latestFlowCache = new Map<number, { expiresAt: number; promise: Promise<AddressFlowResponse> }>();
+
+async function fetchLatestTransactionFlow(limit: number): Promise<AddressFlowResponse> {
   const response = await fetchPublicJson<{ txs: BlockchainInfoTransaction[] }>(
     BLOCKCHAIN_INFO_API_BASE,
     "/unconfirmed-transactions?format=json",
     "Blockchain.info",
   );
-  const transactions = response.txs.map(toBlockstreamTransaction);
+  const transactions = response.txs.slice(0, limit).map(toBlockstreamTransaction);
   const summary: BlockstreamAddressSummary = {
     address: "latest-mempool",
     chain_stats: { tx_count: 0, funded_txo_sum: 0, spent_txo_sum: 0 },
     mempool_stats: {
-      tx_count: transactions.length,
-      funded_txo_sum: transactions.reduce((total, transaction) => total + transaction.vout.reduce((sum, output) => sum + output.value, 0), 0),
+      tx_count: response.txs.length,
+      funded_txo_sum: response.txs.reduce((total, transaction) => total + transaction.out.reduce((sum, output) => sum + output.value, 0), 0),
       spent_txo_sum: 0,
     },
   };
   return buildAddressFlow("latest-mempool", summary, transactions, limit, "Blockchain.info");
+}
+
+export function getLatestTransactionFlow(limit: number): Promise<AddressFlowResponse> {
+  const now = Date.now();
+  const cached = latestFlowCache.get(limit);
+  if (cached && cached.expiresAt > now) return cached.promise;
+
+  const promise = fetchLatestTransactionFlow(limit).catch(error => {
+    if (latestFlowCache.get(limit)?.promise === promise) latestFlowCache.delete(limit);
+    throw error;
+  });
+  latestFlowCache.set(limit, { expiresAt: now + LATEST_FLOW_CACHE_MS, promise });
+  return promise;
 }
 
 export function satoshisToBtc(satoshis: number) {
